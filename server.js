@@ -3,7 +3,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const app = express();
-app.use(cors());
+
+// CORS 설정을 좀 더 구체적으로 변경합니다.
+app.use(cors({
+  origin: '*' // 모든 출처의 요청을 허용합니다.
+}));
+
 app.use(bodyParser.json());
 
 require('dotenv').config();
