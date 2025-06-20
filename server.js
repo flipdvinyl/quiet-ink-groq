@@ -6,6 +6,8 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+require('dotenv').config();
+
 // (3) 요청 로깅 미들웨어 (운영시엔 제거 가능)
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -65,7 +67,7 @@ app.post('/api/tts', async (req, res) => {
       },
       {
         headers: {
-          'x-sup-api-key': '1f6f3292d2cee64b0402f7ce00bda08a',
+          'x-sup-api-key': process.env.SUPERTONE_API_KEY,
           'Content-Type': 'application/json'
         },
         responseType: 'arraybuffer'
