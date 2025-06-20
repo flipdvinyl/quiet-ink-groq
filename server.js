@@ -51,36 +51,66 @@ Constraints:
 });
 
 app.post('/api/tts', async (req, res) => {
+  console.log("--- /api/tts 요청 수신 ---");
   const { text, voice_id } = req.body;
+  console.log("요청 받은 text (앞 20자):", text ? text.substring(0, 20) + '...' : '내용 없음');
+  console.log("요청 받은 voice_id:", voice_id);
+
   if (!text) {
+    console.log("오류: 텍스트 내용이 없어 400 에러 반환");
     return res.status(400).json({ error: '텍스트가 필요합니다.' });
   }
   const useVoiceId = voice_id || 'weKbNjMh2V5MuXziwHwjoT';
+  const apiKey = process.env.SUPERTONE_API_KEY;
+
+  console.log("TTS에 사용될 voice_id:", useVoiceId);
+  console.log("환경변수에서 API 키를 로드했는가?:", !!apiKey);
+  if (apiKey) {
+    console.log("로드된 API 키 (앞 4자리만 표시):", apiKey.substring(0, 4) + '...');
+  } else {
+    console.log("경고: SUPERTONE_API_KEY 환경변수가 설정되지 않았습니다.");
+  }
+
   try {
+    const requestPayload = {
+      text,
+      language: 'ko',
+      style: 'neutral',
+      model: 'sona_speech_1'
+    };
+    const requestHeaders = {
+      'x-sup-api-key': apiKey,
+      'Content-Type': 'application/json'
+    };
+
+    console.log("Supertone API로 요청 전송 시작...");
+
     const response = await axios.post(
       `https://supertoneapi.com/v1/text-to-speech/${useVoiceId}`,
+      requestPayload,
       {
-        text,
-        language: 'ko',
-        style: 'neutral',
-        model: 'sona_speech_1'
-      },
-      {
-        headers: {
-          'x-sup-api-key': process.env.SUPERTONE_API_KEY,
-          'Content-Type': 'application/json'
-        },
+        headers: requestHeaders,
         responseType: 'arraybuffer'
       }
     );
+    console.log("--- Supertone API 요청 성공 ---");
+    console.log("응답 상태 코드:", response.status);
     res.set('Content-Type', 'audio/wav');
     res.send(response.data);
   } catch (err) {
-    console.error('TTS 변환 실패(전체 에러):', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+    console.error("--- Supertone API 요청 실패 ---");
     if (err.response) {
-      console.error('TTS 변환 실패(응답 데이터):', err.response.data);
+      // 버퍼로 된 에러 데이터를 문자열로 변환하여 출력
+      let errorResponseData = '(바이너리 데이터)';
+      try {
+        errorResponseData = err.response.data.toString('utf-8');
+      } catch (e) {
+        // 변환 실패시 그냥 둠
+      }
       console.error('TTS 변환 실패(응답 상태):', err.response.status);
-      console.error('TTS 변환 실패(응답 헤더):', err.response.headers);
+      console.error('TTS 변환 실패(응답 데이터):', errorResponseData);
+    } else {
+      console.error('TTS 변환 실패(전체 에러 메시지):', err.message);
     }
     res.status(500).json({ error: 'TTS 변환 실패', details: err.message });
   }
