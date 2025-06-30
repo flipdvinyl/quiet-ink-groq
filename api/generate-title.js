@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'You are an API that generates a suitable title for the given text. Respond with only the title, without any additional explanation or quotation marks. The title should be in Korean. The title should be concise and no more than 10 characters.'
+            content: 'You are an API that generates a suitable title for the given text. Respond with only the title, without any additional explanation, line breaks, or quotation marks. The title should be in Korean, concise, and no more than 12 characters.'
           },
           {
             role: 'user',
