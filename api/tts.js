@@ -30,14 +30,14 @@ module.exports = async (req, res) => {
     const detectedLanguage = language || 'ko';
     console.log(`TTS 요청 언어: ${detectedLanguage}`);
     
-    // Supertone API 언어 코드 매핑
+    // Supertone API 언어 코드 매핑 (올바른 코드로 수정)
     const languageMapping = {
-      'ko': 'ko-kr', // 한국어
-      'en': 'en-us', // 영어
-      'ja': 'ja-jp', // 일본어
+      'ko': 'ko', // 한국어
+      'en': 'en', // 영어
+      'ja': 'ja', // 일본어
     };
     
-    const supertoneLanguage = languageMapping[detectedLanguage] || 'ko-kr';
+    const supertoneLanguage = languageMapping[detectedLanguage] || 'ko';
     console.log(`Supertone API 언어 코드: ${supertoneLanguage}`);
     const apiKey = process.env.SUPERTONE_API_KEY;
 
