@@ -15,10 +15,6 @@ module.exports = async function ttsHandler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'SUPERTONE_API_KEY is not configured on the server.' });
 
   try {
-    console.log('TTS 요청 - 텍스트:', text.substring(0, 100) + '...');
-    console.log('TTS 요청 - 언어:', language);
-    console.log('TTS 요청 - voice_id:', useVoiceId);
-    
     const requestPayload = {
       text,
       language: language || 'ko',
