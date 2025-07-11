@@ -2,7 +2,6 @@
   "name": "llm-api",
   "version": "1.0.0",
   "description": "API to get title from text using Groq",
-  "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
     "dev": "node api/server.js"
