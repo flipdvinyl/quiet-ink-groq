@@ -31,12 +31,12 @@ module.exports = async (req, res) => {
   
   // Supertone API 언어 코드 매핑
   const languageMapping = {
-    'ko': 'ko-nn', // 한국어
+    'ko': 'ko-kr', // 한국어
     'en': 'en-us', // 영어
     'ja': 'ja-jp', // 일본어
   };
   
-  const supertoneLanguage = languageMapping[detectedLanguage] || 'ko-nn';
+  const supertoneLanguage = languageMapping[detectedLanguage] || 'ko-kr';
   console.log(`Supertone API 언어 코드: ${supertoneLanguage}`);
   const apiKey = process.env.SUPERTONE_API_KEY;
 
