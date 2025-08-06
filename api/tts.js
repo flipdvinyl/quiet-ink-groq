@@ -11,22 +11,29 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  // POST 요청만 처리
+  // POST 요청만 처리합니다.
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // 요청 본문에서 text와 voice_id를 추출합니다.
+  // 요청 본문에서 파라미터들을 추출합니다.
   const { text, voice_id, language, style, model, voice_settings } = req.body;
+
+  // 상세한 요청 로깅 추가
+  console.log('📥 받은 요청 본문:', JSON.stringify(req.body, null, 2));
+  console.log('📥 받은 language 값:', language);
+  console.log('📥 language 타입:', typeof language);
+  console.log('📥 language 길이:', language ? language.length : 'undefined');
 
   if (!text) {
     console.log("오류: 텍스트 내용이 없어 400 에러 반환");
     return res.status(400).json({ error: '텍스트가 필요합니다.' });
   }
+
   const useVoiceId = voice_id || 'weKbNjMh2V5MuXziwHwjoT';
   
-  // 기본값 (English)
-  const defaultLanguage = 'kr';
+  // 기본값 설정 (하드코딩된 값들)
+  const defaultLanguage = 'ko';
   const defaultStyle = 'neutral';
   const defaultModel = 'sona_speech_1';
   const defaultVoiceSettings = {
@@ -35,11 +42,27 @@ module.exports = async (req, res) => {
     'speed': 1
   };
   
+  // 개선된 언어 처리 로직
+  let useLanguage = defaultLanguage;
+  
+  // 언어 값이 유효한지 확인
+  if (language && typeof language === 'string' && language.trim() !== '') {
+    const trimmedLanguage = language.trim();
+    // 지원하는 언어 코드인지 확인
+    if (['ko', 'en', 'ja'].includes(trimmedLanguage)) {
+      useLanguage = trimmedLanguage;
+      console.log('✅ 유효한 언어 코드 감지:', useLanguage);
+    } else {
+      console.log('⚠️ 지원하지 않는 언어 코드:', trimmedLanguage, '-> 기본값 사용');
+    }
+  } else {
+    console.log('⚠️ 언어 값이 유효하지 않음 -> 기본값 사용');
+  }
+  
   // 외부 요청 값이 있으면 사용, 없으면 기본값 사용
-  const useLanguage = language || defaultLanguage;
-  const useStyle = style || defaultStyle;
-  const useModel = model || defaultModel;
-  const useVoiceSettings = voice_settings || defaultVoiceSettings;
+  const useStyle = (style && typeof style === 'string' && style.trim() !== '') ? style.trim() : defaultStyle;
+  const useModel = (model && typeof model === 'string' && model.trim() !== '') ? model.trim() : defaultModel;
+  const useVoiceSettings = (voice_settings && typeof voice_settings === 'object') ? voice_settings : defaultVoiceSettings;
   
   console.log('📥 받은 요청:', { language, style, voice_settings });
   console.log('🎤 사용할 값:', { useLanguage, useStyle, useVoiceSettings });
@@ -59,10 +82,14 @@ module.exports = async (req, res) => {
       model: useModel,
       voice_settings: useVoiceSettings      
     };
+    
     const requestHeaders = {
       'x-sup-api-key': apiKey,
       'Content-Type': 'application/json'
     };
+
+    console.log('🚀 Supertone API 요청 페이로드:', JSON.stringify(requestPayload, null, 2));
+    console.log('🔑 Supertone API 요청 헤더:', JSON.stringify(requestHeaders, null, 2));
 
     const supertoneResponse = await axios.post(
       `https://supertoneapi.com/v1/text-to-speech/${useVoiceId}`,
@@ -72,6 +99,8 @@ module.exports = async (req, res) => {
         responseType: 'arraybuffer'
       }
     );
+
+    console.log('✅ Supertone API 응답 성공 - 데이터 크기:', supertoneResponse.data.byteLength, 'bytes');
 
     res.setHeader('Content-Type', 'audio/wav');
     res.status(200).send(supertoneResponse.data);
@@ -86,6 +115,7 @@ module.exports = async (req, res) => {
         // 변환 실패시 그냥 둠
       }
       console.error('TTS 변환 실패(응답 상태):', err.response.status);
+      console.error('TTS 변환 실패(응답 헤더):', err.response.headers);
       console.error('TTS 변환 실패(응답 데이터):', errorResponseData);
       res.status(err.response.status).send(err.response.data);
     } else {
