@@ -11,13 +11,13 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  // POST 요청만 처리합니다.
+  // POST 요청만 처리
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   // 요청 본문에서 text와 voice_id를 추출합니다.
-  const { text, voice_id, style, voice_settings } = req.body;
+  const { text, voice_id, language, style, model, voice_settings } = req.body;
 
   if (!text) {
     console.log("오류: 텍스트 내용이 없어 400 에러 반환");
@@ -25,8 +25,10 @@ module.exports = async (req, res) => {
   }
   const useVoiceId = voice_id || 'weKbNjMh2V5MuXziwHwjoT';
   
-  // 기본값 설정 (style과 voice_settings만)
+  // 기본값
+  const defaultLanguage = 'ko';
   const defaultStyle = 'neutral';
+  const defaultModel = 'sona_speech_1';
   const defaultVoiceSettings = {
     'pitch_shift': 0,
     'pitch_variance': 1,
@@ -34,11 +36,13 @@ module.exports = async (req, res) => {
   };
   
   // 외부 요청 값이 있으면 사용, 없으면 기본값 사용
+  const useLanguage = language || defaultLanguage;
   const useStyle = style || defaultStyle;
+  const useModel = model || defaultModel;
   const useVoiceSettings = voice_settings || defaultVoiceSettings;
   
-  console.log('📥 받은 요청:', { style, voice_settings });
-  console.log('🎤 사용할 값:', { useStyle, useVoiceSettings });
+  console.log('📥 받은 요청:', { language, style, voice_settings });
+  console.log('🎤 사용할 값:', { useLanguage, useStyle, useVoiceSettings });
   
   const apiKey = process.env.SUPERTONE_API_KEY;
 
@@ -50,7 +54,9 @@ module.exports = async (req, res) => {
   try {
     const requestPayload = {
       text,
+      language: useLanguage,
       style: useStyle,
+      model: useModel,
       voice_settings: useVoiceSettings      
     };
     const requestHeaders = {
