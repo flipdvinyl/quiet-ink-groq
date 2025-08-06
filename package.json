@@ -2,11 +2,13 @@
   "name": "llm-api",
   "version": "1.0.0",
   "description": "API to get title from text using Groq",
+  "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
     "dev": "node api/server.js"
   },
   "dependencies": {
+    "@notionhq/client": "^4.0.1",
     "axios": "^1.7.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",

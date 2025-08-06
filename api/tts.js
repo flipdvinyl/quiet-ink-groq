@@ -17,13 +17,33 @@ module.exports = async (req, res) => {
   }
 
   // 요청 본문에서 text와 voice_id를 추출합니다.
-  const { text, voice_id } = req.body;
+  const { text, voice_id, language, style, model, voice_settings } = req.body;
 
   if (!text) {
     console.log("오류: 텍스트 내용이 없어 400 에러 반환");
     return res.status(400).json({ error: '텍스트가 필요합니다.' });
   }
   const useVoiceId = voice_id || 'weKbNjMh2V5MuXziwHwjoT';
+  
+  // 기본값 설정 (하드코딩된 값들)
+  const defaultLanguage = 'ko';
+  const defaultStyle = 'neutral';
+  const defaultModel = 'sona_speech_1';
+  const defaultVoiceSettings = {
+    'pitch_shift': 0,
+    'pitch_variance': 1,
+    'speed': 1
+  };
+  
+  // 외부 요청 값이 있으면 사용, 없으면 기본값 사용
+  const useLanguage = language || defaultLanguage;
+  const useStyle = style || defaultStyle;
+  const useModel = model || defaultModel;
+  const useVoiceSettings = voice_settings || defaultVoiceSettings;
+  
+  console.log('📥 받은 요청:', { language, style, voice_settings });
+  console.log('🎤 사용할 값:', { useLanguage, useStyle, useVoiceSettings });
+  
   const apiKey = process.env.SUPERTONE_API_KEY;
 
   if (!apiKey) {
@@ -34,14 +54,10 @@ module.exports = async (req, res) => {
   try {
     const requestPayload = {
       text,
-      language: 'ko',
-      style: 'neutral',
-      model: 'sona_speech_1',
-      voice_settings: {
-        'pitch_shift': 0,
-        'pitch_variance': 1,
-        'speed': 1
-      }      
+      language: useLanguage,
+      style: useStyle,
+      model: useModel,
+      voice_settings: useVoiceSettings      
     };
     const requestHeaders = {
       'x-sup-api-key': apiKey,
