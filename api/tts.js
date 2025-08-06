@@ -25,8 +25,8 @@ module.exports = async (req, res) => {
   }
   const useVoiceId = voice_id || 'weKbNjMh2V5MuXziwHwjoT';
   
-  // 기본값
-  const defaultLanguage = 'ko';
+  // 기본값 (English)
+  const defaultLanguage = 'en';
   const defaultStyle = 'neutral';
   const defaultModel = 'sona_speech_1';
   const defaultVoiceSettings = {
