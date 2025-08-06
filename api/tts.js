@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
       voice_settings: {
         'pitch_shift': 0,
         'pitch_variance': 1,
-        'speed': 2
+        'speed': 1
       }      
     };
     const requestHeaders = {
